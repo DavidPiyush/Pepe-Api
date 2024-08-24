@@ -11,5 +11,13 @@
       "src": "/(.*)",
       "dest": "/"
     }
-  ]
+  ],
+  "env": {
+    "MONGO_URI": "mongodb+srv://DAVIDPIYUSH:Piyush251@cluster0.spgygri.mongodb.net/pepecoin?retryWrites=true&w=majority&appName=Cluster0",
+  },
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
+  }
 }

@@ -6,9 +6,9 @@ dotenv.config()
 
 
 const PORT = process.env.PORT || 5500;
-const MONGOURL = process.env.MONGO_URL;
+const MONGO_URI = process.env.MONGO_URL;
 
-mongoose.connect(MONGOURL).then(()=>{
+mongoose.connect(MONGO_URI).then(()=>{
     console.log("DataBase is sucessfully connected!")
     app.listen(PORT,()=> console.log("Server started "+ PORT))
 }).catch((error)=>console.error(error))
