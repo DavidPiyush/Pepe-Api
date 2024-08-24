@@ -13,6 +13,9 @@ app.use(express.json())
 app.enable('trust proxy');
 app.use(cookieParser());
 
+app.get('/hello', (req, res) => {
+  res.status(200).json({ message: 'Hello, World!' });
+});
 
 // ROUTES
 app.use('/',userRouter );
