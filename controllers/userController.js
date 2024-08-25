@@ -29,24 +29,10 @@ export const createUsers = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { ethereumId } = req.params;
-    const { totalBalance, ...otherUpdates } = req.body;
-
-    // Ensure referBalance is a number and increment correctly
-    const increment = Number(totalBalance);
-    if (isNaN(increment)) {
-      return res.status(400).json({ message: 'Invalid increment value' });
-    }
-
-    // Prepare the update object
-    const updateObject = {
-      ...otherUpdates, // Regular updates
-      $inc: { totalBalance: increment }, // Increment referBalance
-    };
-
     // Use findOneAndUpdate with the updateObject
     const updateData = await User.findOneAndUpdate(
       { ethereumId: ethereumId },
-      updateObject,
+      req.body,
       { new: true, runValidators: true }
     );
 
