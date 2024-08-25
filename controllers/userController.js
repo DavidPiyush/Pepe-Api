@@ -36,6 +36,7 @@ export const updateUser = async (req, res) => {
       { new: true, runValidators: true }
     );
 
+    
     await User.findOne({ethereumId:ethereumId})
     // if User does not exits
     if (!updateData) {
@@ -83,6 +84,7 @@ export const deleteUserByEthereumId = async (req, res) => {
     if (!deletedUser) {
       return res.status(404).json({ message: 'User not found' });
     }
+    
 
     res
       .status(200)
