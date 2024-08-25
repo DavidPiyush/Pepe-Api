@@ -49,20 +49,6 @@ UserSchema.pre('save', function (next) {
   next();
 });
 
-// Middleware to update totalBalance before finding and updating a document
-UserSchema.pre('findOneAndUpdate', function (next) {
-  const update = this.getUpdate();
-  const currentDoc = this._conditions;
-
-  const todayClaim = update.todayClaim !== undefined ? update.todayClaim : (currentDoc.todayClaim || 0);
-  const referEarn = update.referEarn !== undefined ? update.referEarn : (currentDoc.referEarn || 0);
-  const totalEarnDay = update.totalEarnDay !== undefined ? update.totalEarnDay : (currentDoc.totalEarnDay || 0);
-
-  update.totalBalance = todayClaim + referEarn + totalEarnDay;
-
-  next();
-});
-
 
 const User = mongoose.model('User', UserSchema, 'User');
 
