@@ -29,15 +29,26 @@ export const createUsers = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { ethereumId } = req.params;
+    const { totalBalance, ...otherUpdates } = req.body; // Destructure totalBalance from req.body
+
+    // Prepare the update object
+    const updateObject = {
+      ...otherUpdates, // Include other fields to update
+    };
+
+    // If totalBalance is provided, use $inc to add it to the existing balance
+    if (totalBalance !== undefined) {
+      updateObject.$inc = { totalBalance: totalBalance };
+    }
+
     // Use findOneAndUpdate with the updateObject
     const updateData = await User.findOneAndUpdate(
       { ethereumId: ethereumId },
-      req.body,
+      updateObject,
       { new: true, runValidators: true }
     );
 
-    await User.findOne({ ethereumId: ethereumId });
-    // if User does not exits
+    // If the user does not exist
     if (!updateData) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -49,12 +60,14 @@ export const updateUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error saving data', error);
+    console.error('Error updating data:', error);
     res.status(500).json({
       message: 'Failed to update data',
+      error: error.message,
     });
   }
 };
+
 
 export const getUserByEthereumId = async (req, res) => {
   try {
