@@ -27,7 +27,7 @@ const UserSchema = new Schema(
     referEarn: { type: Number, default: 0 },
     referredUsers: [
       {
-        ethereumId: { type: String , unique:true, required:true},
+        ethereumId: { type: String , unique:true,},
         status: { type: String },
         referTime: { type: Date, default: new Date() },
       },
