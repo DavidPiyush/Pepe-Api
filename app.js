@@ -7,8 +7,8 @@ import cookieParser from 'cookie-parser';
 const app = express();
 app.use(
   cors({
-    origin: 'https://pepe-api.onrender.com', // Replace with your frontend's domain
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
+    origin: ['http://localhost:5173', 'https://pepe-api.onrender.com'], // Allow both local and production origins
+    methods: 'GET,POST,PUT,DELETE',
     credentials: true, // If you need to send cookies or authentication headers
   })
 );
