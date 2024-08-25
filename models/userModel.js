@@ -33,7 +33,7 @@ const UserSchema = new Schema(
         referTime: { type: Date, default: new Date() },
       },
     ],
-    lastClickTime: { type: Date, default: null },
+    
   },
   {
     timestamps: true, // This will automatically add createdAt and updatedAt fields

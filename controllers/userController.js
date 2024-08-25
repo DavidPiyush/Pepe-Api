@@ -147,31 +147,3 @@ export const getUserByReferCode = async (req, res) => {
 };
 
 
-// Schedule a job to reset lastClickTime every 24 hours
-cron.schedule('0 0 * * *', async () => {
-  try {
-    // Reset lastClickTime for all users
-    await User.updateMany({}, { $set: { lastClickTime: new Date() } });
-    console.log('lastClickTime has been reset for all users.');
-  } catch (error) {
-    console.error('Error resetting lastClickTime:', error);
-  }
-});
-
-export const updateLastClickTime = async (req,res) => {
-  try {
-    const {ethereumId} = req.params
-    const currentTime = new Date();
-    const user = await User.findOne({ethereumId:ethereumId});
-
-    if (user) {
-      user.lastClickTime = currentTime;
-      await user.save();
-      console.log('lastClickTime has been updated.');
-    } else {
-      console.error('User not found.');
-    }
-  } catch (error) {
-    console.error('Error updating lastClickTime:', error);
-  }
-};
