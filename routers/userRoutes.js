@@ -6,9 +6,8 @@ import {
   getUserByEthereumId,
   updateUser,
   deleteUserByEthereumId,
-  clickCheck,
-  getUserByReferCode
-  
+  updateLastClickTime,
+  getUserByReferCode,
 } from '../controllers/userController.js';
 // import { referUser, referUserPost } from '../controllers/referredController.js';
 
@@ -25,6 +24,6 @@ router.delete('/api/v1/user/delete/:ethereumId', deleteUserByEthereumId);
 router.get('/api/v1/refer/:referralCode', getUserByReferCode);
 
 // click check
-router.post('/api/v1/button-click', clickCheck);
+router.post('/api/v1/click/:ethereumId', updateLastClickTime);
 
 export default router;

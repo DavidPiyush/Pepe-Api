@@ -1,4 +1,5 @@
 import User from '../models/userModel.js';
+const cron = require('node-cron');
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -127,39 +128,6 @@ export const deleteUserByEthereumId = async (req, res) => {
   }
 };
 
-export const clickCheck = async (req, res) => {
-  const { ethereumId } = req.body;
-
-  try {
-    const user = await User.findOne({ ethereumId: ethereumId });
-    const currentTime = new Date();
-
-    if (user) {
-      const lastClickTime = user.lastClickTime;
-      const hours24 = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-      if (lastClickTime && currentTime - lastClickTime < hours24) {
-        return res
-          .status(400)
-          .json({ message: 'Button is disabled for 24 hours.' });
-      }
-
-      // Update the lastClickTime
-      user.lastClickTime = currentTime;
-      await user.save();
-      res.status(200).json({ message: 'Button clicked successfully!' });
-    } else {
-      // If user does not exist, create a new user record
-      const newUser = new User({ ethereumId, lastClickTime: currentTime });
-      await newUser.save();
-      res.status(200).json({ message: 'Button clicked successfully!' });
-    }
-  } catch (error) {
-    console.error('Error handling button click:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
 export const getUserByReferCode = async (req, res) => {
   try {
     const { referralCode } = req.params;
@@ -175,5 +143,35 @@ export const getUserByReferCode = async (req, res) => {
     });
   } catch (error) {
     console.log("'CAN'T FIND USER BASED ON USERID", error);
+  }
+};
+
+
+// Schedule a job to reset lastClickTime every 24 hours
+cron.schedule('0 0 * * *', async () => {
+  try {
+    // Reset lastClickTime for all users
+    await User.updateMany({}, { $set: { lastClickTime: new Date() } });
+    console.log('lastClickTime has been reset for all users.');
+  } catch (error) {
+    console.error('Error resetting lastClickTime:', error);
+  }
+});
+
+export const updateLastClickTime = async (req,res) => {
+  try {
+    const {ethereumId} = req.params
+    const currentTime = new Date();
+    const user = await User.findOne({ethereumId:ethereumId});
+
+    if (user) {
+      user.lastClickTime = currentTime;
+      await user.save();
+      console.log('lastClickTime has been updated.');
+    } else {
+      console.error('User not found.');
+    }
+  } catch (error) {
+    console.error('Error updating lastClickTime:', error);
   }
 };
