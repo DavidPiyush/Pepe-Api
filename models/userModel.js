@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, set } from 'mongoose';
 const UserSchema = new Schema(
   {
     ethereumId: {
@@ -10,6 +10,7 @@ const UserSchema = new Schema(
       type: Number,
       default: 0,
       min: [0, 'Balance cannot be negative'],
+      
     },
     referralCode: {
       type: String,
