@@ -1,27 +1,32 @@
-import express from "express"
-import cors from "cors"
-import userRouter from "./routers/userRoutes.js"
-import cookieParser from "cookie-parser";
+import express from 'express';
+import cors from 'cors';
+import userRouter from './routers/userRoutes.js';
+import cookieParser from 'cookie-parser';
 
 // Start express app
 const app = express();
 app.use(
-  cors()
+  cors({
+    origin: 'https://pepe-api.onrender.com', // Replace with your frontend's domain
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
+    credentials: true, // If you need to send cookies or authentication headers
+  })
 );
-app.use(express.json())
+
+app.use(express.json());
 
 app.enable('trust proxy');
 app.use(cookieParser());
 
-app.get("/api",(req,res)=>{
-  res.status(200).json({message:"Welcome to PEPE COIN API"})
-})
+app.get('/api', (req, res) => {
+  res.status(200).json({ message: 'Welcome to PEPE COIN API' });
+});
 
 app.get('/hello', (req, res) => {
   res.status(200).json({ message: 'Hello, World!' });
 });
 
 // ROUTES
-app.use('/',userRouter );
+app.use('/', userRouter);
 
 export default app;
