@@ -43,36 +43,26 @@ const UserSchema = new Schema(
 
 // Middleware to update totalBalance before saving the document
 UserSchema.pre('save', function (next) {
-  // Update totalBalance based on todayClaim, referEarn, and totalEarnDay
-  this.totalBalance = this.todayClaim + this.referEarn + this.totalEarnDay;
+  if (this.isModified('todayClaim') || this.isModified('referEarn') || this.isModified('totalEarnDay')) {
+    this.totalBalance = this.todayClaim + this.referEarn + this.totalEarnDay;
+  }
   next();
 });
 
-
+// Middleware to update totalBalance before finding and updating a document
 UserSchema.pre('findOneAndUpdate', function (next) {
   const update = this.getUpdate();
+  const currentDoc = this._conditions;
 
-  // Check if the relevant fields are being updated
-  if (
-    update.todayClaim !== undefined ||
-    update.referEarn !== undefined ||
-    update.totalEarnDay !== undefined
-  ) {
-    // Calculate new totalBalance
-    update.totalBalance =
-      (update.todayClaim ||
-        this.getUpdate().$set?.todayClaim ||
-        this._doc.todayClaim) +
-      (update.referEarn ||
-        this.getUpdate().$set?.referEarn ||
-        this._doc.referEarn) +
-      (update.totalEarnDay ||
-        this.getUpdate().$set?.totalEarnDay ||
-        this._doc.totalEarnDay);
-  }
+  const todayClaim = update.todayClaim !== undefined ? update.todayClaim : (currentDoc.todayClaim || 0);
+  const referEarn = update.referEarn !== undefined ? update.referEarn : (currentDoc.referEarn || 0);
+  const totalEarnDay = update.totalEarnDay !== undefined ? update.totalEarnDay : (currentDoc.totalEarnDay || 0);
+
+  update.totalBalance = todayClaim + referEarn + totalEarnDay;
 
   next();
 });
+
 
 const User = mongoose.model('User', UserSchema, 'User');
 
