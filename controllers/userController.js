@@ -29,16 +29,48 @@ export const createUsers = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { ethereumId } = req.params;
-    const { totalBalance, ...otherUpdates } = req.body; // Destructure totalBalance from req.body
+    const { totalBalance, todayBalance, totalEarnDay, referEarn } = req.body; // Destructure fields from req.body
 
     // Prepare the update object
-    const updateObject = {
-      ...otherUpdates, // Include other fields to update
-    };
+    const updateObject = {};
 
-    // If totalBalance is provided, use $inc to add it to the existing balance
-    if (totalBalance !== undefined) {
-      updateObject.$inc = { totalBalance: totalBalance };
+    // Check if totalBalance is provided and is a valid number
+    if (totalBalance !== undefined && typeof totalBalance === 'number') {
+      updateObject.$inc = {
+        totalBalance: totalEarnDay || 0 + todayBalance || 0 + referEarn || 0,
+      };
+    }
+
+    // Directly set fields if they are provided and valid
+    if (todayBalance !== undefined) {
+      if (typeof todayBalance === 'number') {
+        updateObject.todayBalance = todayBalance;
+      } else {
+        return res
+          .status(400)
+          .json({ message: 'Invalid value for todayBalance' });
+      }
+    }
+    if (totalEarnDay !== undefined) {
+      if (typeof totalEarnDay === 'number') {
+        updateObject.totalEarnDay = totalEarnDay;
+      } else {
+        return res
+          .status(400)
+          .json({ message: 'Invalid value for totalEarnDay' });
+      }
+    }
+    if (referEarn !== undefined) {
+      if (typeof referEarn === 'number') {
+        updateObject.referEarn = referEarn;
+      } else {
+        return res.status(400).json({ message: 'Invalid value for referEarn' });
+      }
+    }
+
+    // If no valid fields to update, return an error
+    if (Object.keys(updateObject).length === 0) {
+      return res.status(400).json({ message: 'No valid fields to update' });
     }
 
     // Use findOneAndUpdate with the updateObject
@@ -67,6 +99,50 @@ export const updateUser = async (req, res) => {
     });
   }
 };
+
+
+// export const updateUser = async (req, res) => {
+//   try {
+//     const { ethereumId } = req.params;
+//     const { totalBalance, todayBalance,totalEarnDay,referEarn } = req.body; // Destructure totalBalance from req.body
+
+//     // Prepare the update object
+//     const updateObject = {
+//       ...otherUpdates, // Include other fields to update
+//     };
+
+
+//     // If totalBalance is provided, use $inc to add it to the existing balance
+//     if (totalBalance !== undefined) {
+//       updateObject.$inc = { totalBalance: totalEarnDay+ todayBalance+ referEarn};
+//     }
+
+//     // Use findOneAndUpdate with the updateObject
+//     const updateData = await User.findOneAndUpdate(
+//       { ethereumId: ethereumId },
+//       updateObject,
+//       { new: true, runValidators: true }
+//     );
+
+//     // If the user does not exist
+//     if (!updateData) {
+//       return res.status(404).json({ message: 'User not found' });
+//     }
+
+//     res.status(200).json({
+//       status: 'success',
+//       data: {
+//         user: updateData,
+//       },
+//     });
+//   } catch (error) {
+//     console.error('Error updating data:', error);
+//     res.status(500).json({
+//       message: 'Failed to update data',
+//       error: error.message,
+//     });
+//   }
+// };
 
 
 export const getUserByEthereumId = async (req, res) => {
