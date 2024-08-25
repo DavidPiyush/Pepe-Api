@@ -1,5 +1,4 @@
 import User from '../models/userModel.js';
-const cron = require('node-cron');
 
 export const getAllUsers = async (req, res) => {
   try {
