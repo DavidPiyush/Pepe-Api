@@ -39,12 +39,5 @@ const UserSchema = new Schema(
   }
 );
 
-UserSchema.pre('save', function (next) {
-  // Calculate the totalBalance based on other fields
-  this.totalBalance = this.referEarn + this.totalEarnDay + this.todayClaim;
-  console.log(this.totalBalance);
-  next();
-});
-
 const User = mongoose.model('User', UserSchema, 'User');
 export default User;

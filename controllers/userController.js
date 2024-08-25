@@ -17,7 +17,7 @@ export const createUsers = async (req, res) => {
 
     await newUser.save();
 
-     res.status(201).json({ status: 'sucess', data: { user: newUser } });
+    res.status(201).json({ status: 'sucess', data: { user: newUser } });
   } catch (error) {
     console.error('Error saving data', error);
     res.status(500).json({
@@ -36,8 +36,7 @@ export const updateUser = async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    
-    await User.findOne({ethereumId:ethereumId})
+    await User.findOne({ ethereumId: ethereumId });
     // if User does not exits
     if (!updateData) {
       return res.status(404).json({ message: 'User not found' });
@@ -84,7 +83,6 @@ export const deleteUserByEthereumId = async (req, res) => {
     if (!deletedUser) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
 
     res
       .status(200)
@@ -95,36 +93,37 @@ export const deleteUserByEthereumId = async (req, res) => {
 };
 
 export const clickCheck = async (req, res) => {
-    const { ethereumId } = req.body;
+  const { ethereumId } = req.body;
 
-    try {
-        const user = await User.findOne({ ethereumId:ethereumId });
-        const currentTime = new Date();
+  try {
+    const user = await User.findOne({ ethereumId: ethereumId });
+    const currentTime = new Date();
 
-        if (user) {
-            const lastClickTime = user.lastClickTime;
-            const hours24 = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    if (user) {
+      const lastClickTime = user.lastClickTime;
+      const hours24 = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
-            if (lastClickTime && (currentTime - lastClickTime < hours24)) {
-                return res.status(400).json({ message: 'Button is disabled for 24 hours.' });
-            }
+      if (lastClickTime && currentTime - lastClickTime < hours24) {
+        return res
+          .status(400)
+          .json({ message: 'Button is disabled for 24 hours.' });
+      }
 
-            // Update the lastClickTime
-            user.lastClickTime = currentTime;
-            await user.save();
-            res.status(200).json({ message: 'Button clicked successfully!' });
-        } else {
-            // If user does not exist, create a new user record
-            const newUser = new User({ ethereumId, lastClickTime: currentTime });
-            await newUser.save();
-            res.status(200).json({ message: 'Button clicked successfully!' });
-        }
-    } catch (error) {
-        console.error('Error handling button click:', error);
-        res.status(500).json({ message: 'Server error' });
+      // Update the lastClickTime
+      user.lastClickTime = currentTime;
+      await user.save();
+      res.status(200).json({ message: 'Button clicked successfully!' });
+    } else {
+      // If user does not exist, create a new user record
+      const newUser = new User({ ethereumId, lastClickTime: currentTime });
+      await newUser.save();
+      res.status(200).json({ message: 'Button clicked successfully!' });
     }
-}
-
+  } catch (error) {
+    console.error('Error handling button click:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
 export const getUserByReferCode = async (req, res) => {
   try {
