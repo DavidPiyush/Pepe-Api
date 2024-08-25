@@ -26,35 +26,47 @@ export const createUsers = async (req, res) => {
   }
 };
 
+
 export const updateUser = async (req, res) => {
   try {
     const { ethereumId } = req.params;
     const { todayClaim, totalEarnDay, referEarn } = req.body;
 
-    // Prepare update object
+    // Fetch the current user data from the database
+    const currentUser = await User.findOne({ ethereumId });
+
+    if (!currentUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Prepare the update object and initialize totalBalanceIncrement
     const updateObject = {};
     let totalBalanceIncrement = 0;
 
-    // Calculate the sum of fields to be added to totalBalance
-    if (
-      todayClaim !== undefined ||
-      totalEarnDay !== undefined ||
-      referEarn !== undefined
-    ) {
-      totalBalanceIncrement =
-        (todayClaim || 0) + (totalEarnDay || 0) + (referEarn || 0);
-      updateObject.$inc = { totalBalance: totalBalanceIncrement };
-    }
-
-    // Update other fields
-    if (todayClaim !== undefined) {
+    // Check if todayClaim has changed and update accordingly
+    if (todayClaim !== undefined && todayClaim !== currentUser.todayClaim) {
+      totalBalanceIncrement += todayClaim;
       updateObject.todayClaim = todayClaim;
     }
-    if (totalEarnDay !== undefined) {
+
+    // Check if totalEarnDay has changed and update accordingly
+    if (
+      totalEarnDay !== undefined &&
+      totalEarnDay !== currentUser.totalEarnDay
+    ) {
+      totalBalanceIncrement += totalEarnDay;
       updateObject.totalEarnDay = totalEarnDay;
     }
-    if (referEarn !== undefined) {
+
+    // Check if referEarn has changed and update accordingly
+    if (referEarn !== undefined && referEarn !== currentUser.referEarn) {
+      totalBalanceIncrement += referEarn;
       updateObject.referEarn = referEarn;
+    }
+
+    // Only increment totalBalance if there's something to increment
+    if (totalBalanceIncrement > 0) {
+      updateObject.$inc = { totalBalance: totalBalanceIncrement };
     }
 
     // Ensure there are fields to update
@@ -68,11 +80,6 @@ export const updateUser = async (req, res) => {
       updateObject,
       { new: true, runValidators: true }
     );
-
-    // Check if the user was found and updated
-    if (!updatedUser) {
-      return res.status(404).json({ message: 'User not found' });
-    }
 
     // Return the updated user data
     res.status(200).json({
@@ -89,7 +96,6 @@ export const updateUser = async (req, res) => {
     });
   }
 };
-
 
 export const getUserByEthereumId = async (req, res) => {
   try {
