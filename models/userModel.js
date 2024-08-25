@@ -10,7 +10,6 @@ const UserSchema = new Schema(
       type: Number,
       default: 0,
       min: [0, 'Balance cannot be negative'],
-      
     },
     referralCode: {
       type: String,
@@ -28,7 +27,7 @@ const UserSchema = new Schema(
     referEarn: { type: Number, default: 0 },
     referredUsers: [
       {
-        ethereumId: { type: String , unique:true,},
+        ethereumId: { type: String, unique: true },
         status: { type: String },
         referTime: { type: Date, default: new Date() },
       },
@@ -40,10 +39,12 @@ const UserSchema = new Schema(
   }
 );
 
-
-
+UserSchema.pre('save', function (next) {
+  // Calculate the totalBalance based on other fields
+  this.totalBalance = this.referEarn + this.totalEarnDay + this.todayClaim;
+  console.log(this.totalBalance);
+  next();
+});
 
 const User = mongoose.model('User', UserSchema, 'User');
-
-// console.log(User);
 export default User;
