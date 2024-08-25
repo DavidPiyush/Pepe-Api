@@ -20,7 +20,7 @@ router.post('/api/v1/create', createUsers);
 router.put('/api/v1/user/update/:ethereumId', updateUser);
 router.delete('/api/v1/user/delete/:ethereumId', deleteUserByEthereumId);
 
-router.get('/api/v1/refer/:referralCode', getUserByReferCode);
+router.get('/api/v1/refer/code/:referralCode', getUserByReferCode);
 
 // click check
 
