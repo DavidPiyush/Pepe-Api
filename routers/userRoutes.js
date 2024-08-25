@@ -16,15 +16,15 @@ const router = express.Router();
 
 // GETTING DATA FROM USERS
 
-router.get('/', getAllUsers);
-router.get('/user/:ethereumId',getUserByEthereumId)
-router.post('/create', createUsers);
-router.put('/user/update/:ethereumId',updateUser)
-router.delete('/user/delete/:ethereumId',deleteUserByEthereumId)
+router.get('/api/v1/', getAllUsers);
+router.get('/api/v1/user/:ethereumId', getUserByEthereumId);
+router.post('/api/v1/create', createUsers);
+router.put('/api/v1/user/update/:ethereumId', updateUser);
+router.delete('/api/v1/user/delete/:ethereumId', deleteUserByEthereumId);
 
-router.get("/refer/:referralCode",getUserByReferCode)
+router.get('/api/v1/refer/:referralCode', getUserByReferCode);
 
 // click check
-router.post('/button-click',clickCheck)
+router.post('/api/v1/button-click', clickCheck);
 
 export default router;
