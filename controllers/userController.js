@@ -29,7 +29,7 @@ export const createUsers = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { ethereumId } = req.params;
-    const { todayClaim, totalEarnDay, referEarn } = req.body;
+    const { todayClaim, totalEarnDay } = req.body;
 
     // Prepare update object
     const updateObject = {};
@@ -38,11 +38,10 @@ export const updateUser = async (req, res) => {
     // Calculate the sum of fields to be added to totalBalance
     if (
       todayClaim !== undefined ||
-      totalEarnDay !== undefined ||
-      referEarn !== undefined
+      totalEarnDay !== undefined
     ) {
       totalBalanceIncrement =
-        (todayClaim || 0) + (totalEarnDay || 0) + (referEarn || 0);
+        (todayClaim || 0) + (totalEarnDay || 0) ;
       updateObject.$inc = { totalBalance: totalBalanceIncrement };
     }
 
@@ -52,9 +51,6 @@ export const updateUser = async (req, res) => {
     }
     if (totalEarnDay !== undefined) {
       updateObject.totalEarnDay = totalEarnDay;
-    }
-    if (referEarn !== undefined) {
-      updateObject.referEarn = referEarn;
     }
 
     // Ensure there are fields to update
