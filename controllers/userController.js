@@ -144,13 +144,31 @@ export const getUserByReferCode = async (req, res) => {
   }
 };
 
+
 export const fetchDataUser = async (req, res) => {
   try {
     const { referralCode } = req.params;
     const updateObj = req.body;
+
+    // Find the user by referralCode
+    const user = await User.findOne({ referralCode: referralCode });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Check if the ethereumId already exists in referredUsers
+    const isDuplicate = user.referredUsers.some(
+      (ref) => ref.ethereumId === updateObj.referredUsers.ethereumId
+    );
+
+    if (isDuplicate) {
+      return res.status(400).json({ error: 'Ethereum ID already referred' });
+    }
+
+    // If not duplicate, proceed to update
     const update = await User.findOneAndUpdate(
       { referralCode: referralCode },
-
       {
         $inc: { referEarn: updateObj.referEarn }, // Increment referEarn
         $push: { referredUsers: updateObj.referredUsers }, // Push new referred user
@@ -158,9 +176,31 @@ export const fetchDataUser = async (req, res) => {
       { new: true } // Return the updated document
     );
 
-    return update;
+    res.status(200).json(update);
   } catch (error) {
     console.error('Error updating user data:', error);
-    throw error;
+    res.status(500).json({ error: 'Failed to update user data' });
   }
 };
+
+
+// export const fetchDataUser = async (req, res) => {
+//   try {
+//     const { referralCode } = req.params;
+//     const updateObj = req.body;
+//     const update = await User.findOneAndUpdate(
+//       { referralCode: referralCode },
+
+//       {
+//         $inc: { referEarn: updateObj.referEarn }, // Increment referEarn
+//         $push: { referredUsers: updateObj.referredUsers }, // Push new referred user
+//       },
+//       { new: true } // Return the updated document
+//     );
+
+//     return update;
+//   } catch (error) {
+//     console.error('Error updating user data:', error);
+//     throw error;
+//   }
+// };
