@@ -90,7 +90,6 @@ export const updateUser = async (req, res) => {
   }
 };
 
-
 export const getUserByEthereumId = async (req, res) => {
   try {
     const { ethereumId } = req.params;
@@ -145,4 +144,23 @@ export const getUserByReferCode = async (req, res) => {
   }
 };
 
+export const fetchDataUser = async (req, res) => {
+  try {
+    const { referralCode } = req.params;
+    const updateObj = req.body;
+    const update = await User.findOneAndUpdate(
+      { referralCode: referralCode },
 
+      {
+        $inc: { referEarn: updateObj.referEarn }, // Increment referEarn
+        $push: { referredUsers: updateObj.referredUsers }, // Push new referred user
+      },
+      { new: true } // Return the updated document
+    );
+
+    return update;
+  } catch (error) {
+    console.error('Error updating user data:', error);
+    throw error;
+  }
+};
