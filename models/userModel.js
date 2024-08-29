@@ -41,6 +41,10 @@ const UserSchema = new Schema(
         message: 'socialLinks array contains duplicate values',
       },
     },
+    lastClickTime: {
+      type: Date,
+      default: Date.now,
+    },
     clickCount: {
       type: Number,
       default: 0,
