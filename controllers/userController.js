@@ -25,7 +25,6 @@ export const createUsers = async (req, res) => {
     });
   }
 };
-
 export const updateUser = async (req, res) => {
   try {
     const { ethereumId } = req.params;
@@ -33,19 +32,15 @@ export const updateUser = async (req, res) => {
 
     // Prepare update object
     const updateObject = {};
-    let totalBalanceIncrement = 0;
+    const incrementObject = {};
 
     // Calculate the sum of fields to be added to totalBalance
-    if (
-      todayClaim !== undefined ||
-      totalEarnDay !== undefined
-    ) {
-      totalBalanceIncrement =
-        (todayClaim || 0) + (totalEarnDay || 0) ;
-      updateObject.$inc = { totalBalance: totalBalanceIncrement };
+    if (todayClaim !== undefined || totalEarnDay !== undefined) {
+      const totalBalanceIncrement = (todayClaim || 0) + (totalEarnDay || 0);
+      incrementObject.totalBalance = totalBalanceIncrement;
     }
 
-    // Update other fields
+    // Update other fields directly
     if (todayClaim !== undefined) {
       updateObject.todayClaim = todayClaim;
     }
@@ -53,15 +48,21 @@ export const updateUser = async (req, res) => {
       updateObject.totalEarnDay = totalEarnDay;
     }
 
+    // Combine direct updates and increment operations
+    const finalUpdateObject = {
+      ...updateObject,
+      ...(Object.keys(incrementObject).length > 0 && { $inc: incrementObject }),
+    };
+
     // Ensure there are fields to update
-    if (Object.keys(updateObject).length === 0) {
+    if (Object.keys(finalUpdateObject).length === 0) {
       return res.status(400).json({ message: 'No valid fields to update' });
     }
 
     // Perform the update
     const updatedUser = await User.findOneAndUpdate(
       { ethereumId: ethereumId },
-      updateObject,
+      finalUpdateObject,
       { new: true, runValidators: true }
     );
 
