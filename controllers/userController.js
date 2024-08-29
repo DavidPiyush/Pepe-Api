@@ -182,23 +182,156 @@ export const fetchDataUser = async (req, res) => {
   }
 };
 
-// export const fetchDataUser = async (req, res) => {
-//   try {
-//     const { referralCode } = req.params;
-//     const updateObj = req.body;
-//     const update = await User.findOneAndUpdate(
-//       { referralCode: referralCode },
+export const socialLink = async (req, res) => {
+  try {
+    const { ethereumId } = req.params;
+    console.log(ethereumId);
 
-//       {
-//         $inc: { referEarn: updateObj.referEarn }, // Increment referEarn
-//         $push: { referredUsers: updateObj.referredUsers }, // Push new referred user
-//       },
-//       { new: true } // Return the updated document
-//     );
+    const { socialLinks } = req.body;
 
-//     return update;
-//   } catch (error) {
-//     console.error('Error updating user data:', error);
-//     throw error;
-//   }
-// };
+    const user = await User.findOneAndUpdate(
+      { ethereumId: ethereumId },
+      {
+        $addToSet: {
+          socialLinks: socialLinks,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        user: user,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating user data:', error);
+    res.status(500).json({ error: 'Failed to update user data' });
+  }
+};
+
+export const clickCount = async (req, res) => {
+  try {
+    const { ethereumId } = req.params; // Get the ethereumId from the request parameters
+
+    // Get the current time
+    const currentTime = new Date();
+
+    // Update the user document
+    const user = await User.findOneAndUpdate(
+      { ethereumId },
+      [
+        {
+          $set: {
+            clickCount: {
+              $cond: [
+                {
+                  $gt: [
+                    { $subtract: [currentTime, '$lastClickTime'] },
+                    86400000,
+                  ],
+                },
+                1, // Reset to 1 if more than 24 hours have passed
+                '$clickCount', // Otherwise, keep the current value
+              ],
+            },
+            lastClickTime: {
+              $cond: [
+                {
+                  $gt: [
+                    { $subtract: [currentTime, '$lastClickTime'] },
+                    86400000,
+                  ],
+                },
+                currentTime, // Update lastClickTime if more than 24 hours have passed
+                '$lastClickTime', // Otherwise, keep the current value
+              ],
+            },
+          },
+        },
+      ],
+      { new: true } // Return the updated document
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res
+      .status(200)
+      .json({
+        message: 'Click count updated successfully',
+        clickCount: user.clickCount,
+      });
+  } catch (error) {
+    console.error('Error updating click count:', error);
+    res.status(500).json({ error: 'Failed to update click count' });
+  }
+};
+
+
+// Function to calculate remaining time
+const calculateRemainingTime = (startTime) => {
+  const currentTime = new Date();
+  const elapsedTime = currentTime - startTime; // Elapsed time in milliseconds
+  const remainingTime = 86400000 - elapsedTime; // 24 hours = 86400000 milliseconds
+
+  return remainingTime > 0 ? remainingTime : 0;
+};
+
+export const startCountdown = async (req, res) => {
+  try {
+    const { ethereumId } = req.params;
+
+    // Update the user's timerStart and clickCount
+    const user = await User.findOneAndUpdate(
+      { ethereumId },
+      [
+        {
+          $set: {
+            timerStart: {
+              $cond: [
+                { $eq: ["$timerStart", null] }, // Start the timer if it's not already set
+                new Date(), // Set the current time as timerStart
+                "$timerStart" // Keep the current timerStart if already set
+              ]
+            },
+            clickCount: {
+              $cond: [
+                { $eq: ["$timerStart", null] }, // Increment clickCount if the timer has not started
+                1, // Set clickCount to 1 when the timer starts
+                "$clickCount" // Keep the current clickCount if the timer is already running
+              ]
+            }
+          }
+        }
+      ],
+      { new: true } // Return the updated document
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Calculate remaining time if the timer is running
+    const remainingTime = user.timerStart ? calculateRemainingTime(user.timerStart) : 0;
+
+    res.status(200).json({
+      message: 'Countdown started',
+      remainingTime: remainingTime, // Time left in milliseconds
+      remainingTimeInMinutes: Math.floor(remainingTime / 60000), // Time left in minutes
+      remainingTimeInHours: Math.floor(remainingTime / 3600000), // Time left in hours
+      clickCount: user.clickCount
+    });
+  } catch (error) {
+    console.error('Error starting countdown:', error);
+    res.status(500).json({ error: 'Failed to start countdown' });
+  }
+};
+
+

@@ -10,7 +10,6 @@ const UserSchema = new Schema(
       type: Number,
       default: 0,
       min: [0, 'Balance cannot be negative'],
-      
     },
     referralCode: {
       type: String,
@@ -33,7 +32,22 @@ const UserSchema = new Schema(
         referTime: { type: Date, default: new Date() },
       },
     ],
-    
+    socialLinks: {
+      type: [String],
+      validate: {
+        validator: function (arr) {
+          return arr.length === new Set(arr).size;
+        },
+        message: 'socialLinks array contains duplicate values',
+      },
+    },
+    clickCount: {
+      type: Number,
+      default: 0,
+    },
+    timerStart: {
+      type: Date,
+    },
   },
   {
     timestamps: true, // This will automatically add createdAt and updatedAt fields
