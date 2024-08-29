@@ -25,6 +25,7 @@ export const createUsers = async (req, res) => {
     });
   }
 };
+
 export const updateUser = async (req, res) => {
   try {
     const { ethereumId } = req.params;
@@ -36,16 +37,18 @@ export const updateUser = async (req, res) => {
 
     // Calculate the sum of fields to be added to totalBalance
     if (todayClaim !== undefined || totalEarnDay !== undefined) {
-      const totalBalanceIncrement = todayClaim + totalEarnDay;
+      const totalBalanceIncrement = (todayClaim || 0) + (totalEarnDay || 0);
       incrementObject.totalBalance = totalBalanceIncrement;
     }
 
-    // Update other fields directly
+    // Add $inc for todayClaim if provided
     if (todayClaim !== undefined) {
-      updateObject.todayClaim = todayClaim;
+      incrementObject.todayClaim = todayClaim;
     }
+
+    // Add $inc for totalEarnDay if provided
     if (totalEarnDay !== undefined) {
-      updateObject.totalEarnDay = totalEarnDay;
+      incrementObject.totalEarnDay = totalEarnDay;
     }
 
     // Combine direct updates and increment operations
