@@ -36,7 +36,7 @@ export const updateUser = async (req, res) => {
 
     // Calculate the sum of fields to be added to totalBalance
     if (todayClaim !== undefined || totalEarnDay !== undefined) {
-      const totalBalanceIncrement = (todayClaim || 0) + (totalEarnDay || 0);
+      const totalBalanceIncrement = todayClaim + totalEarnDay;
       incrementObject.totalBalance = totalBalanceIncrement;
     }
 
@@ -141,7 +141,6 @@ export const getUserByReferCode = async (req, res) => {
   }
 };
 
-
 export const fetchDataUser = async (req, res) => {
   try {
     const { referralCode } = req.params;
@@ -179,7 +178,6 @@ export const fetchDataUser = async (req, res) => {
     res.status(500).json({ error: 'Failed to update user data' });
   }
 };
-
 
 // export const fetchDataUser = async (req, res) => {
 //   try {
