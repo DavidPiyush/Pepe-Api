@@ -11,7 +11,7 @@ app.use(
       'http://localhost:5173',
       'https://pepe-api.onrender.com',
       'https://pepe-coin-app.vercel.app',
-      "https://pepelayer2.com",
+      'https://pepelayer2.com',
     ], // Allow both local and production origins
     methods: 'GET,POST,PUT,DELETE',
     credentials: true, // If you need to send cookies or authentication headers
